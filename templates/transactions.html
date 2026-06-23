@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Транзакции - Баркас Банк{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2><i class="fas fa-list"></i> Все транзакции</h2>
+    <button type="button" class="btn-primary" onclick="document.getElementById('transactionModal').classList.add('active');document.body.style.overflow='hidden';">
+        <i class="fas fa-plus"></i> Новая транзакция
+    </button>
+</div>
+
+<div class="filters">
+    <div class="filter-group">
+        <label>Тип:</label>
+        <select id="filterType" class="filter-select">
+            <option value="all" {% if current_type == 'all' %}selected{% endif %}>Все</option>
+            <option value="income" {% if current_type == 'income' %}selected{% endif %}>Доходы</option>
+            <option value="expense" {% if current_type == 'expense' %}selected{% endif %}>Расходы</option>
+        </select>
+    </div>
+    
+    <div class="filter-group">
+        <label>Категория:</label>
+        <select id="filterCategory" class="filter-select">
+            <option value="all" {% if current_category == 'all' %}selected{% endif %}>Все категории</option>
+            {% for cat in categories %}
+            <option value="{{ cat }}" {% if current_category == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <button id="applyFilters" class="btn-secondary">Применить</button>
+</div>
+
+<div class="transactions-table-container">
+    <table class="transactions-table">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Тип</th>
+                <th>Категория</th>
+                <th>Описание</th>
+                <th>Сумма</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tx in transactions %}
+            <tr class="transaction-row {{ tx.type }}">
+                <td>{{ tx.date.strftime('%d.%m.%Y') }}</td>
+                <td>
+                    <span class="type-badge {{ tx.type }}">
+                        {{ 'Доход' if tx.type == 'income' else 'Расход' }}
+                    </span>
+                </td>
+                <td>{{ tx.category }}</td>
+                <td>{{ tx.description or '-' }}</td>
+                <td class="amount {{ tx.type }}">
+                    {{ '+' if tx.type == 'income' else '-' }}{{ "{:,.0f}".format(tx.amount).replace(',', ' ') }} ₽
+                </td>
+                <td class="actions">
+                    <a href="{{ url_for('transaction_edit', id=tx.id) }}" class="btn-icon" title="Редактировать">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <form method="POST" action="{{ url_for('transaction_delete', id=tx.id) }}" class="delete-form" style="display: inline;">
+                        <button type="submit" class="btn-icon delete-btn" onclick="return confirm('Удалить транзакцию?')" title="Удалить">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="no-data">Нет транзакций</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if pagination.pages > 1 %}
+<div class="pagination">
+    {% if pagination.has_prev %}
+        <a href="{{ url_for('transactions_list', page=pagination.prev_num, type=current_type, category=current_category) }}" class="page-link">&laquo; Назад</a>
+    {% endif %}
+    
+    <span class="page-current">Страница {{ pagination.page }} из {{ pagination.pages }}</span>
+    
+    {% if pagination.has_next %}
+        <a href="{{ url_for('transactions_list', page=pagination.next_num, type=current_type, category=current_category) }}" class="page-link">Вперед &raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
+
+<script>
+document.getElementById('applyFilters').addEventListener('click', function() {
+    const type = document.getElementById('filterType').value;
+    const category = document.getElementById('filterCategory').value;
+    window.location.href = "{{ url_for('transactions_list') }}?type=" + type + "&category=" + category;
+});
+</script>
+{% endblock %}

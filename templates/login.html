@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Вход - Баркас Банк{% endblock %}
+
+{% block auth_content %}
+<div class="auth-overlay">
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="fas fa-wallet"></i>
+            <h2>Баркас Банк</h2>
+            <p>Войдите в свой аккаунт</p>
+        </div>
+        
+        <form method="POST" action="{{ url_for('login') }}">
+            {{ form.hidden_tag() }}
+            
+            <div class="form-group">
+                <label for="email"><i class="fas fa-envelope"></i> Email</label>
+                {{ form.email(class="form-control", placeholder="your@email.com") }}
+                {% for error in form.email.errors %}
+                    <span class="error-message">{{ error }}</span>
+                {% endfor %}
+            </div>
+            
+            <div class="form-group">
+                <label for="password"><i class="fas fa-lock"></i> Пароль</label>
+                {{ form.password(class="form-control", placeholder="••••••") }}
+                {% for error in form.password.errors %}
+                    <span class="error-message">{{ error }}</span>
+                {% endfor %}
+            </div>
+            
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-sign-in-alt"></i> Войти
+            </button>
+        </form>
+        
+        <div class="auth-footer">
+            <p>Нет аккаунта? <a href="{{ url_for('register') }}">Зарегистрироваться</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

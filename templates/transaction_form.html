@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Баркас Банк{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <div class="form-header">
+            <h2><i class="fas fa-{% if 'Новая' in title %}plus-circle{% else %}edit{% endif %}"></i> {{ title }}</h2>
+        </div>
+
+        <form method="POST" action="{{ request.path }}">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                <label for="type">{{ form.type.label }}</label>
+                {{ form.type(class="form-control") }}
+                {% for error in form.type.errors %}
+                    <span class="error-message">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="amount">{{ form.amount.label }}</label>
+                <div class="amount-input">
+                    {{ form.amount(class="form-control", placeholder="0.00", step="0.01") }}
+                </div>
+                {% for error in form.amount.errors %}
+                    <span class="error-message">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="category">{{ form.category.label }}</label>
+                {{ form.category(class="form-control") }}
+                {% for error in form.category.errors %}
+                    <span class="error-message">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="description">{{ form.description.label }}</label>
+                {{ form.description(class="form-control", rows="3", placeholder="Введите описание...") }}
+                {% for error in form.description.errors %}
+                    <span class="error-message">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label for="date">{{ form.date.label }}</label>
+                {{ form.date(class="form-control", type="date") }}
+                {% for error in form.date.errors %}
+                    <span class="error-message">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save"></i> Сохранить
+                </button>
+                <a href="{{ url_for('transactions_list') }}" class="btn-secondary">
+                    <i class="fas fa-times"></i> Отмена
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.querySelector('input[type="date"]');
+    if (dateInput && !dateInput.value) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        dateInput.value = `${yyyy}-${mm}-${dd}`;
+    }
+});
+</script>
+{% endblock %}
